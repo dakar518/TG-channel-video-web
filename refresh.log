@@ -1,0 +1,26 @@
+Python install manager was successfully updated to 26.1.
+
+This update adds global shortcuts for installed scripts such as pip.exe.
+Use py install --refresh to update all shortcuts.
+This will be needed after installing new scripts, as it is not run automatically.
+
+********************************************************************************
+To see all available commands, run 'py help'
+********************************************************************************
+[ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
+[ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager
+********************************************************************************
+To see all available commands, run 'py help'
+********************************************************************************
+[ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
+[ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager
+********************************************************************************
+To see all available commands, run 'py help'
+********************************************************************************
+[ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
+[ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager
+********************************************************************************
+To see all available commands, run 'py help'
+********************************************************************************
+[ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
+[ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager
