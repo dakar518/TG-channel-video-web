@@ -24,3 +24,8 @@ To see all available commands, run 'py help'
 ********************************************************************************
 [ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
 [ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager
+********************************************************************************
+To see all available commands, run 'py help'
+********************************************************************************
+[ERROR] INTERNAL ERROR: NoInstallsError: No runtimes are installed. Try running "py install default" first.
+[ERROR] Internal error 0x00000001. Please report to https://github.com/python/pymanager

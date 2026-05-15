@@ -41,8 +41,10 @@ def load_db() -> dict:
     return {"videos": [], "synced_ids": [], "stats": {"total": 0, "today": 0, "groups": []}}
 
 def save_db(db: dict):
-    DB_FILE.write_text(json.dumps(db, ensure_ascii=False, indent=2), encoding="utf-8")
-
+    # 先写临时文件，写完后再替换，防止读取时文件为空
+    tmp = DB_FILE.with_suffix('.tmp')
+    tmp.write_text(json.dumps(db, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(DB_FILE)
 def already_downloaded(db: dict, msg_id: int, group: str) -> bool:
     ids = db.get("synced_ids", [])
     return any(str(msg_id) in sid for sid in ids)
