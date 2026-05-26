@@ -1,7 +1,10 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 TelegramVideoSync — 自动下载 Telegram 群组视频并生成 JSON 素材库
-每次同步完成后自动扫描本地目录重建完整数据库
+- 保留后台手动设置的分类、标签、标题、播放数、点赞数
+- 新同步视频自动归入 NEW_VIDEO_CAT 分类
+- 每次同步完成后自动扫描本地目录重建完整数据库
+- 自动去重
 
 依赖: pip install telethon aiofiles python-dotenv
 用法: python3 tg_sync.py
@@ -29,23 +32,30 @@ DB_FILE      = Path(os.getenv("DB_FILE",   "videos.json"))
 MAX_FILE_MB  = int(os.getenv("MAX_FILE_MB", "500"))
 MIN_DURATION = int(os.getenv("MIN_DURATION", "5"))
 
+# 新同步视频自动归入此分类（可在 .env 中修改）
+NEW_VIDEO_CAT = os.getenv("NEW_VIDEO_CAT", "最新同步")
+
 VIDEO_DIR.mkdir(exist_ok=True)
 
 # ── 数据库 ────────────────────────────────────────────────────────────────────
 def load_db() -> dict:
     if DB_FILE.exists():
         try:
-            return json.loads(DB_FILE.read_text(encoding="utf-8"))
+            content = DB_FILE.read_text(encoding="utf-8").strip()
+            if content:
+                return json.loads(content)
         except Exception:
             pass
     return {"videos": [], "synced_ids": [], "stats": {"total": 0, "today": 0, "groups": []}}
 
 def save_db(db: dict):
-    # 先写临时文件，写完后再替换，防止读取时文件为空
-    tmp = DB_FILE.with_suffix('.tmp')
+    # 先写临时文件再替换，防止读写冲突导致文件为空
+    tmp = DB_FILE.with_suffix(".tmp")
     tmp.write_text(json.dumps(db, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(DB_FILE)
+
 def already_downloaded(db: dict, msg_id: int, group: str) -> bool:
+    # 同时检查两种格式，防止群组名和数字ID不匹配
     ids = db.get("synced_ids", [])
     return any(str(msg_id) in sid for sid in ids)
 
@@ -53,6 +63,14 @@ def mark_downloaded(db: dict, msg_id: int, group: str):
     key = f"{group}:{msg_id}"
     if key not in db["synced_ids"]:
         db["synced_ids"].append(key)
+
+def get_existing_entry(db: dict, video_id: str):
+    """获取已有视频记录，用于保留手动设置的字段"""
+    return next((v for v in db.get("videos", []) if v.get("id") == video_id), None)
+
+def get_existing_by_file(db: dict, rel_path: str):
+    """按文件路径查找已有记录"""
+    return next((v for v in db.get("videos", []) if v.get("file") == rel_path), None)
 
 # ── 视频工具 ──────────────────────────────────────────────────────────────────
 def get_video_attr(doc):
@@ -96,18 +114,22 @@ def ffprobe_dimensions(path: Path):
     except:
         return 0, 0
 
-# ── 重建数据库（扫描本地目录）────────────────────────────────────────────────
+# ── 重建数据库（扫描本地目录，保留手动设置）─────────────────────────────────
 def rebuild_db():
-    log.info("🔍 扫描本地视频目录，重建数据库...")
+    log.info("🔍 扫描本地视频目录，重建数据库（保留分类/标签）...")
 
-    # 保留已有记录的 views/likes/title 等
-    existing = {}
+    # 保留所有已有记录（包含手动设置的分类、标签、标题等）
+    existing_by_file = {}
+    existing_by_id   = {}
     if DB_FILE.exists():
         try:
-            old = json.loads(DB_FILE.read_text(encoding="utf-8"))
+            old = json.loads(DB_FILE.read_text(encoding="utf-8").strip())
             for v in old.get("videos", []):
-                existing[v.get("file", "")] = v
-            log.info(f"读取已有记录: {len(existing)} 条")
+                if v.get("file"):
+                    existing_by_file[v["file"]] = v
+                if v.get("id"):
+                    existing_by_id[v["id"]] = v
+            log.info(f"读取已有记录: {len(existing_by_file)} 条")
         except:
             pass
 
@@ -123,14 +145,20 @@ def rebuild_db():
         rel_path = f"videos/{f.name}"
         log.info(f"[{i+1}/{len(files)}] {f.name}")
 
-        # 已有记录直接复用
-        if rel_path in existing:
-            entry = existing[rel_path]
-            entry["thumb"] = make_thumb_url(rel_path)
+        # ── 已有记录：完整保留手动设置的所有字段 ──
+        if rel_path in existing_by_file:
+            entry = existing_by_file[rel_path].copy()
+            entry["thumb"] = make_thumb_url(rel_path)  # 更新缩略图路径
+            # 确保关键字段存在，不强制覆盖
+            entry.setdefault("cat",   "")
+            entry.setdefault("tags",  [])
+            entry.setdefault("views", 0)
+            entry.setdefault("likes", 0)
+            entry.setdefault("title", f.name)
             videos.append(entry)
             continue
 
-        # 新文件获取元数据
+        # ── 新文件：获取元数据，归入新同步分类 ──
         duration      = ffprobe_duration(f)
         width, height = ffprobe_dimensions(f)
         size_mb       = round(f.stat().st_size / 1024 / 1024, 2)
@@ -143,6 +171,7 @@ def rebuild_db():
             "title":        f.name,
             "group":        "Telegram",
             "group_id":     "local",
+            "cat":          NEW_VIDEO_CAT,   # 新视频归入新同步分类
             "duration":     duration,
             "duration_str": format_dur(duration),
             "width":        width,
@@ -166,7 +195,7 @@ def rebuild_db():
         "stats": {
             "total":  len(videos),
             "today":  0,
-            "groups": list(set(v.get("group", "") for v in videos)),
+            "groups": list(set(v.get("group", "") for v in videos if v.get("group"))),
         }
     }
     save_db(db)
@@ -195,6 +224,19 @@ def generate_thumbs():
             except Exception as e:
                 log.warning(f"缩略图失败 {f.name}: {e}")
     log.info(f"🖼️  新增缩略图 {count} 张")
+
+def make_thumb(out_path: Path):
+    thumb = Path("thumbs") / f"{out_path.stem}.jpg"
+    if not thumb.exists():
+        try:
+            subprocess.run(
+                ["ffmpeg", "-i", str(out_path), "-ss", "00:00:01",
+                 "-vframes", "1", "-q:v", "2", str(thumb), "-y"],
+                capture_output=True, timeout=30
+            )
+        except:
+            pass
+
 # ── 自动去重 ──────────────────────────────────────────────────────────────────
 def dedup_videos():
     log.info("🔍 开始检查重复视频...")
@@ -221,23 +263,11 @@ def dedup_videos():
         if thumb.exists():
             thumb.unlink()
     keep_ids = set(v["id"] for v in videos if v not in duplicates)
-    db["videos"] = [v for v in videos if v["id"] in keep_ids]
+    db["videos"]     = [v for v in videos if v["id"] in keep_ids]
     db["synced_ids"] = [v["id"] for v in db["videos"]]
     db["stats"]["total"] = len(db["videos"])
     save_db(db)
     log.info(f"✅ 去重完成，剩余视频: {len(db['videos'])} 个")
-def make_thumb(out_path: Path):
-    """为单个视频生成缩略图"""
-    thumb = Path("thumbs") / f"{out_path.stem}.jpg"
-    if not thumb.exists():
-        try:
-            subprocess.run(
-                ["ffmpeg", "-i", str(out_path), "-ss", "00:00:01",
-                 "-vframes", "1", "-q:v", "2", str(thumb), "-y"],
-                capture_output=True, timeout=30
-            )
-        except:
-            pass
 
 # ── Telegram 同步核心 ─────────────────────────────────────────────────────────
 async def sync_group(client: TelegramClient, group: str, db: dict, limit: int = 50):
@@ -275,6 +305,7 @@ async def sync_group(client: TelegramClient, group: str, db: dict, limit: int = 
         file_hash = hashlib.md5(f"{group}:{msg.id}".encode()).hexdigest()[:8]
         filename  = f"{file_hash}_{msg.id}.{ext}"
         out_path  = VIDEO_DIR / filename
+        video_id  = f"{group}:{msg.id}"
 
         log.info(f"下载: {filename} ({size_mb:.1f}MB, {format_dur(attr['duration'])})")
         try:
@@ -283,33 +314,46 @@ async def sync_group(client: TelegramClient, group: str, db: dict, limit: int = 
             log.error(f"下载失败 msg_id={msg.id}: {e}")
             continue
 
-        # 立即生成缩略图
         make_thumb(out_path)
 
-        caption = (msg.text or "").strip()
+        # ── 保留已有记录的手动设置字段 ──
+        existing = get_existing_entry(db, video_id)
+        caption  = (msg.text or "").strip()
+
         entry = {
-            "id":           f"{group}:{msg.id}",
+            "id":           video_id,
             "file":         f"videos/{filename}",
             "thumb":        make_thumb_url(f"videos/{filename}"),
-            "title":        caption[:120] if caption else filename,
+            # 已有记录保留原标题，新视频用 caption 或文件名
+            "title":        existing.get("title") if existing else (caption[:120] if caption else filename),
             "group":        group_name,
             "group_id":     group,
+            # 已有记录保留原分类，新视频归入 NEW_VIDEO_CAT
+            "cat":          existing.get("cat") if existing and existing.get("cat") else NEW_VIDEO_CAT,
             "duration":     attr["duration"],
             "duration_str": format_dur(attr["duration"]),
             "width":        attr["width"],
             "height":       attr["height"],
             "size_mb":      round(size_mb, 2),
             "mime":         doc.mime_type,
-            "views":        0,
-            "likes":        0,
-            "tags":         [],
+            # 保留已有的播放数和点赞数
+            "views":        existing.get("views", 0) if existing else 0,
+            "likes":        existing.get("likes", 0) if existing else 0,
+            # 保留已有标签，新视频为空
+            "tags":         existing.get("tags", []) if existing else [],
             "date":         msg.date.isoformat() if msg.date else datetime.utcnow().isoformat(),
             "synced_at":    datetime.utcnow().isoformat(),
         }
 
-        db["videos"].insert(0, entry)
+        # 如果已存在则更新，否则插入到最前面
+        existing_idx = next((i for i, v in enumerate(db["videos"]) if v.get("id") == video_id), None)
+        if existing_idx is not None:
+            db["videos"][existing_idx] = entry
+        else:
+            db["videos"].insert(0, entry)
+
         mark_downloaded(db, msg.id, group)
-        db["stats"]["total"] += 1
+        db["stats"]["total"] = len(db["videos"])
         downloaded += 1
         save_db(db)
 
@@ -338,10 +382,13 @@ async def _download_one(client, msg, doc, group, db):
     size_mb = doc.size / 1024 / 1024
     if size_mb > MAX_FILE_MB:
         return
+
     ext      = doc.mime_type.split("/")[-1]
     h        = hashlib.md5(f"{group}:{msg.id}".encode()).hexdigest()[:8]
     filename = f"{h}_{msg.id}.{ext}"
     out_path = VIDEO_DIR / filename
+    video_id = f"{group}:{msg.id}"
+
     try:
         await client.download_media(msg, str(out_path))
     except Exception as e:
@@ -350,28 +397,39 @@ async def _download_one(client, msg, doc, group, db):
 
     make_thumb(out_path)
 
-    caption = (msg.text or "").strip()
+    # 保留已有记录的手动设置字段
+    existing = get_existing_entry(db, video_id)
+    caption  = (msg.text or "").strip()
+
     entry = {
-        "id":           f"{group}:{msg.id}",
+        "id":           video_id,
         "file":         f"videos/{filename}",
         "thumb":        make_thumb_url(f"videos/{filename}"),
-        "title":        caption[:120] if caption else filename,
+        "title":        existing.get("title") if existing else (caption[:120] if caption else filename),
         "group":        group,
         "group_id":     group,
+        "cat":          existing.get("cat") if existing and existing.get("cat") else NEW_VIDEO_CAT,
         "duration":     attr["duration"],
         "duration_str": format_dur(attr["duration"]),
         "size_mb":      round(size_mb, 2),
-        "views":        0,
-        "likes":        0,
-        "tags":         [],
+        "mime":         doc.mime_type,
+        "views":        existing.get("views", 0) if existing else 0,
+        "likes":        existing.get("likes", 0) if existing else 0,
+        "tags":         existing.get("tags", []) if existing else [],
         "date":         msg.date.isoformat() if msg.date else datetime.utcnow().isoformat(),
         "synced_at":    datetime.utcnow().isoformat(),
     }
-    db["videos"].insert(0, entry)
+
+    existing_idx = next((i for i, v in enumerate(db["videos"]) if v.get("id") == video_id), None)
+    if existing_idx is not None:
+        db["videos"][existing_idx] = entry
+    else:
+        db["videos"].insert(0, entry)
+
     mark_downloaded(db, msg.id, group)
-    db["stats"]["total"] += 1
+    db["stats"]["total"] = len(db["videos"])
     save_db(db)
-    log.info(f"实时下载完成: {filename}")
+    log.info(f"实时下载完成: {filename}，已归入分类：{NEW_VIDEO_CAT}")
 
 # ── 入口 ──────────────────────────────────────────────────────────────────────
 async def main():
@@ -380,10 +438,9 @@ async def main():
     if not WATCH_GROUPS or WATCH_GROUPS == ['']:
         raise SystemExit("❌ 请在 .env 中填写 TG_GROUPS")
 
-    # 第一步：启动前扫描本地，确保数据库完整
-    rebuild_db()
-    generate_thumbs()
-    dedup_videos()
+    log.info(f"📁 新同步视频将归入分类：{NEW_VIDEO_CAT}")
+
+    # 第一步：启动前扫描本地，确保数据库完整，保留手动分类
     db = rebuild_db()
     generate_thumbs()
 
@@ -407,10 +464,11 @@ async def main():
         if g:
             await sync_group(client, g, db)
 
-    # 第四步：同步完成后再次重建数据库和缩略图
+    # 第四步：同步完成后重建数据库、生成缩略图、去重
     log.info("📦 同步完成，重新扫描本地目录确保数据完整...")
     rebuild_db()
     generate_thumbs()
+    dedup_videos()
 
     # 第五步：进入实时监听
     register_realtime(client, db)

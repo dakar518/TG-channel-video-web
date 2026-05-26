@@ -7,284 +7,251 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --bg2: #111118;
-    --bg3: #1a1a25;
-    --card: #16161f;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --accent: #7c6cfc;
-    --accent2: #a78bfa;
-    --accent3: #06d6a0;
-    --text: #f0eeff;
-    --muted: rgba(240,238,255,0.45);
-    --muted2: rgba(240,238,255,0.22);
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a25; --card: #16161f;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --accent: #7c6cfc; --accent2: #a78bfa; --accent3: #06d6a0;
+    --text: #f0eeff; --muted: rgba(240,238,255,0.45); --muted2: rgba(240,238,255,0.22);
     --red: #ff5c7a;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Sora', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.6;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:0.6; }
 
-  /* ── 年龄验证遮罩 ─────────────────────────────────────────────────────────── */
-  #ageGate {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,0.97);
-    backdrop-filter: blur(20px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem;
-  }
-  .age-box {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    max-width: 460px; width: 100%;
-    padding: 2.5rem 2rem;
-    text-align: center;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-    animation: popIn 0.3s ease;
-  }
+  /* AGE GATE */
+  #ageGate { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.97); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+  .age-box { background:var(--card); border:1px solid var(--border2); border-radius:20px; max-width:460px; width:100%; padding:2.5rem 2rem; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,0.8); animation:popIn 0.3s ease; }
   @keyframes popIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
-  .age-icon {
-    font-size: 52px; margin-bottom: 1.2rem;
-    line-height: 1;
-  }
-  .age-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--red), #ff8c00);
-    font-family: 'Space Mono', monospace;
-    font-size: 20px; font-weight: 700; color: #fff;
-    margin-bottom: 1.2rem;
-    box-shadow: 0 8px 24px rgba(255,92,122,0.4);
-  }
-  .age-title {
-    font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;
-    margin-bottom: 0.8rem; color: var(--text);
-  }
-  .age-desc {
-    font-size: 13.5px; color: var(--muted); line-height: 1.7;
-    margin-bottom: 1.8rem;
-  }
-  .age-desc strong { color: var(--text); }
-  .age-warning {
-    background: rgba(255,92,122,0.08);
-    border: 1px solid rgba(255,92,122,0.2);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 12px; color: rgba(255,92,122,0.85);
-    margin-bottom: 1.8rem; line-height: 1.6;
-  }
-  .age-btns { display: flex; flex-direction: column; gap: 10px; }
-  .btn-enter {
-    padding: 14px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent), #5b4fe8);
-    border: none; color: #fff;
-    font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s;
-    box-shadow: 0 6px 20px rgba(124,108,252,0.4);
-  }
-  .btn-enter:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(124,108,252,0.55); }
-  .btn-leave {
-    padding: 12px; border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border2);
-    color: var(--muted); font-family: 'Sora', sans-serif;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-leave:hover { background: rgba(255,92,122,0.1); border-color: rgba(255,92,122,0.3); color: var(--red); }
-  .age-legal {
-    margin-top: 1.2rem; font-size: 11px; color: var(--muted2); line-height: 1.6;
-  }
+  .age-badge { display:inline-flex; align-items:center; justify-content:center; width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--red),#ff8c00); font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:#fff; margin-bottom:1.2rem; box-shadow:0 8px 24px rgba(255,92,122,0.4); }
+  .age-title { font-size:1.5rem; font-weight:700; margin-bottom:0.8rem; }
+  .age-desc { font-size:13.5px; color:var(--muted); line-height:1.7; margin-bottom:1.8rem; }
+  .age-desc strong { color:var(--text); }
+  .age-warning { background:rgba(255,92,122,0.08); border:1px solid rgba(255,92,122,0.2); border-radius:10px; padding:10px 14px; font-size:12px; color:rgba(255,92,122,0.85); margin-bottom:1.8rem; line-height:1.6; }
+  .age-btns { display:flex; flex-direction:column; gap:10px; }
+  .btn-enter { padding:14px; border-radius:12px; background:linear-gradient(135deg,var(--accent),#5b4fe8); border:none; color:#fff; font-family:'Sora',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; box-shadow:0 6px 20px rgba(124,108,252,0.4); }
+  .btn-enter:hover { transform:translateY(-2px); }
+  .btn-leave { padding:12px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--border2); color:var(--muted); font-family:'Sora',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .btn-leave:hover { background:rgba(255,92,122,0.1); border-color:rgba(255,92,122,0.3); color:var(--red); }
+  .age-legal { margin-top:1.2rem; font-size:11px; color:var(--muted2); line-height:1.6; }
 
-  /* ── HEADER ──────────────────────────────────────────────────────────────── */
-  header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(10,10,15,0.85); backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem; height: 60px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent3)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  .logo-text { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: var(--text); letter-spacing: -0.5px; }
-  .logo-text span { color: var(--accent); }
-  nav { display: flex; align-items: center; gap: 6px; }
-  .nav-tag { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; color: var(--muted); transition: all 0.2s; background: none; font-family: 'Sora', sans-serif; }
-  .nav-tag:hover { color: var(--text); border-color: var(--border2); }
-  .nav-tag.active { color: var(--accent2); border-color: rgba(124,108,252,0.35); background: rgba(124,108,252,0.08); }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .search-bar { display: flex; align-items: center; background: var(--bg3); border: 1px solid var(--border); border-radius: 24px; padding: 6px 14px; gap: 8px; transition: border-color 0.2s; }
-  .search-bar:focus-within { border-color: var(--accent); }
-  .search-bar input { background: none; border: none; outline: none; color: var(--text); font-family: 'Sora', sans-serif; font-size: 13px; width: 160px; }
-  .search-bar input::placeholder { color: var(--muted2); }
-  .tg-badge { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; background: rgba(38,162,246,0.12); border: 1px solid rgba(38,162,246,0.25); color: #50aaee; font-size: 12px; font-weight: 600; }
-  .tg-dot { width: 6px; height: 6px; border-radius: 50%; background: #50aaee; animation: pulse 1.8s infinite; }
+  /* HEADER */
+  header { position:sticky; top:0; z-index:100; background:rgba(10,10,15,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; }
+  .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .logo-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent3)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .logo-text { font-family:'Space Mono',monospace; font-weight:700; font-size:17px; color:var(--text); letter-spacing:-0.5px; }
+  .logo-text span { color:var(--accent); }
+  nav#catNav { display:flex; align-items:center; gap:6px; overflow-x:auto; max-width:600px; }
+  nav#catNav::-webkit-scrollbar { display:none; }
+  .nav-tag { padding:5px 14px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; color:var(--muted); transition:all 0.2s; background:none; font-family:'Sora',sans-serif; white-space:nowrap; }
+  .nav-tag:hover { color:var(--text); border-color:var(--border2); }
+  .nav-tag.active { color:var(--accent2); border-color:rgba(124,108,252,0.35); background:rgba(124,108,252,0.08); }
+  .header-right { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .search-bar { display:flex; align-items:center; background:var(--bg3); border:1px solid var(--border); border-radius:24px; padding:6px 14px; gap:8px; transition:border-color 0.2s; }
+  .search-bar:focus-within { border-color:var(--accent); }
+  .search-bar input { background:none; border:none; outline:none; color:var(--text); font-family:'Sora',sans-serif; font-size:13px; width:160px; }
+  .search-bar input::placeholder { color:var(--muted2); }
+  .tg-badge { display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; background:rgba(38,162,246,0.12); border:1px solid rgba(38,162,246,0.25); color:#50aaee; font-size:12px; font-weight:600; }
+  .tg-dot { width:6px; height:6px; border-radius:50%; background:#50aaee; animation:pulse 1.8s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  main { position: relative; z-index: 1; }
+  main { position:relative; z-index:1; }
 
   /* HERO */
-  .hero { padding: 3rem 2rem 1.5rem; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); }
-  .hero h1 { font-size: 2.4rem; font-weight: 700; line-height: 1.1; letter-spacing: -1.5px; }
-  .hero h1 em { font-style: normal; color: var(--accent2); }
-  .hero-sub { color: var(--muted); font-size: 14px; margin-top: 8px; font-weight: 300; }
-  .stats-row { display: flex; gap: 2rem; text-align: right; }
-  .stat-val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent3); }
-  .stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+  .hero { padding:3rem 2rem 1.5rem; display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); }
+  .hero h1 { font-size:2.4rem; font-weight:700; line-height:1.1; letter-spacing:-1.5px; }
+  .hero h1 em { font-style:normal; color:var(--accent2); }
+  .hero-sub { color:var(--muted); font-size:14px; margin-top:8px; font-weight:300; }
+  .stats-row { display:flex; gap:2rem; text-align:right; }
+  .stat-val { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; color:var(--accent3); }
+  .stat-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
 
   /* FILTER BAR */
-  .filter-bar { padding: 1rem 2rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); overflow-x: auto; }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-lbl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; white-space: nowrap; margin-right: 4px; }
-  .sort-sel { background: var(--bg3); border: 1px solid var(--border); color: var(--muted); font-family: 'Sora', sans-serif; font-size: 12px; padding: 5px 10px; border-radius: 8px; cursor: pointer; outline: none; }
+  .filter-bar { padding:1rem 2rem; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
+  .filter-lbl { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.7px; white-space:nowrap; margin-right:4px; }
+  .sort-sel { background:var(--bg3); border:1px solid var(--border); color:var(--muted); font-family:'Sora',sans-serif; font-size:12px; padding:5px 10px; border-radius:8px; cursor:pointer; outline:none; }
+
+  /* ── 广告横幅 ──────────────────────────────────────────────────────────────── */
+  .ad-banner {
+    margin:0 2rem;
+    padding:0.8rem 1.2rem;
+    background:var(--bg3);
+    border:1px solid var(--border2);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    min-height:90px;
+    position:relative;
+    overflow:hidden;
+  }
+  .ad-banner::before {
+    content:'广告';
+    position:absolute; top:4px; right:8px;
+    font-size:9px; color:var(--muted2); font-weight:600;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  /* 顶部横幅广告 */
+  .ad-banner-top { margin:1rem 2rem 0; }
+  /* 底部横幅广告 */
+  .ad-banner-bottom { margin:0 2rem 1rem; }
 
   /* VIDEO GRID */
-  .grid-wrap { padding: 1.5rem 2rem 4rem; }
-  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-  .video-card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; animation: fadeUp 0.4s ease both; }
-  .video-card:hover { transform: translateY(-3px); border-color: rgba(124,108,252,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  .grid-wrap { padding:1.5rem 2rem 2rem; }
+  .video-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+
+  /* ── 广告卡片（嵌入网格）──────────────────────────────────────────────────── */
+  .ad-card {
+    background:var(--bg3);
+    border:1px dashed var(--border2);
+    border-radius:14px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    min-height:200px;
+    position:relative;
+  }
+  .ad-card::before {
+    content:'广告';
+    position:absolute; top:6px; right:8px;
+    font-size:9px; color:var(--muted2); font-weight:600;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .ad-card-placeholder {
+    text-align:center; color:var(--muted2); font-size:12px; padding:1rem;
+  }
+  .ad-card-placeholder .ad-icon { font-size:24px; margin-bottom:8px; opacity:0.4; }
+
+  /* ── 视频卡片（含悬停预览）────────────────────────────────────────────────── */
+  .video-card { background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; cursor:pointer; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; animation:fadeUp 0.4s ease both; }
+  .video-card:hover { transform:translateY(-3px); border-color:rgba(124,108,252,0.3); box-shadow:0 12px 40px rgba(0,0,0,0.5); }
   @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-  .thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; background: var(--bg3); }
-  .thumb-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-  .video-card:hover .thumb-img { transform: scale(1.04); }
-  .thumb-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); opacity: 0; transition: opacity 0.2s; }
-  .video-card:hover .thumb-overlay { opacity: 1; }
-  .play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
-  .video-card:hover .play-btn { opacity: 1; }
-  .play-circle { width: 44px; height: 44px; border-radius: 50%; background: rgba(124,108,252,0.9); display: flex; align-items: center; justify-content: center; font-size: 18px; backdrop-filter: blur(4px); transform: scale(0.85); transition: transform 0.2s; }
-  .video-card:hover .play-circle { transform: scale(1); }
-  .duration-badge { position: absolute; bottom: 8px; right: 8px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; background: rgba(0,0,0,0.75); color: #fff; padding: 2px 7px; border-radius: 5px; backdrop-filter: blur(4px); }
-  .source-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; background: rgba(38,162,246,0.85); color: #fff; }
-  .thumb-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg3), var(--bg2)); font-size: 32px; color: var(--muted2); }
-  .card-body { padding: 12px 14px 14px; }
-  .card-title { font-size: 13.5px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .card-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
-  .card-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
-  .card-footer { padding: 8px 14px 12px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .action-btn { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); cursor: pointer; background: none; border: none; font-family: 'Sora', sans-serif; transition: color 0.15s; }
-  .action-btn:hover { color: var(--accent2); }
-  .action-btn.liked { color: var(--red); }
+
+  .thumb { position:relative; aspect-ratio:16/9; overflow:hidden; background:var(--bg3); }
+  .thumb-img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease; position:absolute; inset:0; }
+  .video-card:hover .thumb-img { transform:scale(1.04); }
+
+  /* 悬停预览视频 */
+  .thumb-preview {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:0;
+    transition:opacity 0.3s ease;
+    pointer-events:none;
+  }
+  .video-card:hover .thumb-preview { opacity:1; }
+  .video-card:hover .thumb-img { opacity:0; }
+
+  .thumb-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 60%); opacity:0; transition:opacity 0.2s; }
+  .video-card:hover .thumb-overlay { opacity:1; }
+  .play-btn { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s; }
+  .video-card:hover .play-btn { opacity:1; }
+  .play-circle { width:44px; height:44px; border-radius:50%; background:rgba(124,108,252,0.9); display:flex; align-items:center; justify-content:center; font-size:18px; backdrop-filter:blur(4px); transform:scale(0.85); transition:transform 0.2s; }
+  .video-card:hover .play-circle { transform:scale(1); }
+  .duration-badge { position:absolute; bottom:8px; right:8px; font-family:'Space Mono',monospace; font-size:11px; font-weight:700; background:rgba(0,0,0,0.75); color:#fff; padding:2px 7px; border-radius:5px; backdrop-filter:blur(4px); z-index:2; }
+  .source-badge { position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px; background:rgba(38,162,246,0.85); color:#fff; z-index:2; }
+  .thumb-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--bg3),var(--bg2)); font-size:32px; color:var(--muted2); }
+
+  /* 悬停时静音图标 */
+  .mute-indicator { position:absolute; bottom:8px; left:8px; z-index:3; background:rgba(0,0,0,0.6); border-radius:50%; width:24px; height:24px; display:none; align-items:center; justify-content:center; font-size:11px; backdrop-filter:blur(4px); cursor:pointer; }
+  .video-card:hover .mute-indicator { display:flex; }
+
+  .card-body { padding:12px 14px 14px; }
+  .card-title { font-size:13.5px; font-weight:600; line-height:1.4; color:var(--text); margin-bottom:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card-meta { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); flex-wrap:wrap; }
+  .card-meta-dot { width:3px; height:3px; border-radius:50%; background:var(--muted2); flex-shrink:0; }
+  .card-cat { font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; background:rgba(124,108,252,0.1); border:1px solid rgba(124,108,252,0.2); color:var(--accent2); }
+  .card-footer { padding:8px 14px 12px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .action-btn { display:flex; align-items:center; gap:4px; font-size:12px; color:var(--muted); cursor:pointer; background:none; border:none; font-family:'Sora',sans-serif; transition:color 0.15s; }
+  .action-btn:hover { color:var(--accent2); }
+  .action-btn.liked { color:var(--red); }
 
   /* LIGHTBOX */
-  .lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
-  .lightbox.open { display: flex; }
-  .lb-inner { max-width: 900px; width: 94%; position: relative; }
-  .lb-video { width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000; }
-  .lb-video video { width: 100%; height: 100%; }
-  .lb-close { position: absolute; top: -44px; right: 0; background: none; border: none; color: var(--muted); font-size: 28px; cursor: pointer; }
-  .lb-close:hover { color: var(--text); }
-  .lb-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(124,108,252,0.25); border: 1px solid rgba(124,108,252,0.4); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; backdrop-filter: blur(4px); }
-  .lb-arrow:hover { background: rgba(124,108,252,0.5); transform: translateY(-50%) scale(1.1); }
-  .lb-arrow.prev { left: -60px; }
-  .lb-arrow.next { right: -60px; }
-  .lb-arrow:disabled { opacity: 0.2; cursor: not-allowed; }
-  .lb-arrow:disabled:hover { background: rgba(124,108,252,0.25); transform: translateY(-50%) scale(1); }
-  .lb-info { padding: 1rem 0 0; }
-  .lb-title { font-size: 18px; font-weight: 700; }
-  .lb-meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .lb-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
-  .lb-nav-btn { padding: 7px 18px; border-radius: 20px; background: rgba(124,108,252,0.15); border: 1px solid rgba(124,108,252,0.35); color: var(--accent2); font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .lb-nav-btn:hover { background: rgba(124,108,252,0.35); }
-  .lb-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-  .lb-counter { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); background: var(--bg3); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); }
-  .lb-keyboard-hint { text-align: center; margin-top: 8px; font-size: 11px; color: var(--muted2); }
-  .lb-keyboard-hint kbd { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 5px; font-size: 11px; font-family: 'Space Mono', monospace; }
+  .lightbox { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.95); display:none; align-items:center; justify-content:center; backdrop-filter:blur(12px); }
+  .lightbox.open { display:flex; }
+  .lb-inner { max-width:900px; width:94%; position:relative; }
+  .lb-video { width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; }
+  .lb-video video { width:100%; height:100%; }
+  .lb-close { position:absolute; top:-44px; right:0; background:none; border:none; color:var(--muted); font-size:28px; cursor:pointer; }
+  .lb-close:hover { color:var(--text); }
+  .lb-arrow { position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; background:rgba(124,108,252,0.25); border:1px solid rgba(124,108,252,0.4); color:var(--text); font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; backdrop-filter:blur(4px); }
+  .lb-arrow:hover { background:rgba(124,108,252,0.5); transform:translateY(-50%) scale(1.1); }
+  .lb-arrow.prev { left:-60px; }
+  .lb-arrow.next { right:-60px; }
+  .lb-arrow:disabled { opacity:0.2; cursor:not-allowed; }
+  .lb-arrow:disabled:hover { background:rgba(124,108,252,0.25); transform:translateY(-50%); }
+  .lb-info { padding:1rem 0 0; }
+  .lb-title { font-size:18px; font-weight:700; }
+  .lb-meta { font-size:13px; color:var(--muted); margin-top:4px; }
+  .lb-nav { display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+  .lb-nav-btn { padding:7px 18px; border-radius:20px; background:rgba(124,108,252,0.15); border:1px solid rgba(124,108,252,0.35); color:var(--accent2); font-family:'Sora',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .lb-nav-btn:hover { background:rgba(124,108,252,0.35); }
+  .lb-nav-btn:disabled { opacity:0.25; cursor:not-allowed; }
+  .lb-counter { font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); background:var(--bg3); padding:4px 12px; border-radius:12px; border:1px solid var(--border); }
+  .lb-keyboard-hint { text-align:center; margin-top:8px; font-size:11px; color:var(--muted2); }
+  .lb-keyboard-hint kbd { background:var(--bg3); border:1px solid var(--border2); border-radius:4px; padding:1px 5px; font-size:11px; font-family:'Space Mono',monospace; }
 
   /* LOADING */
-  .loading-wrap { text-align: center; padding: 5rem 2rem; }
-  .spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  .loading-wrap { text-align:center; padding:5rem 2rem; }
+  .spinner { width:36px; height:36px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--accent); animation:spin 0.8s linear infinite; margin:0 auto 1rem; }
   @keyframes spin { to{transform:rotate(360deg)} }
-  .loading-text { color: var(--muted); font-size: 14px; }
+  .loading-text { color:var(--muted); font-size:14px; }
 
   /* EMPTY */
-  .empty { text-align: center; padding: 5rem 2rem; }
-  .empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: 0.4; }
-  .empty h3 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-  .empty p { font-size: 14px; line-height: 1.6; max-width: 380px; margin: 0 auto; color: var(--muted); }
+  .empty { text-align:center; padding:5rem 2rem; }
+  .empty-icon { font-size:48px; margin-bottom:1rem; opacity:0.4; }
+  .empty h3 { font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px; }
+  .empty p { font-size:14px; line-height:1.6; max-width:380px; margin:0 auto; color:var(--muted); }
 
   /* FAB */
-  .fab { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 91; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent3)); border: none; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(124,108,252,0.5); transition: transform 0.2s; }
-  .fab:hover { transform: scale(1.08); }
+  .fab { position:fixed; right:1.5rem; bottom:1.5rem; z-index:91; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent3)); border:none; cursor:pointer; font-size:22px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 30px rgba(124,108,252,0.5); transition:transform 0.2s; }
+  .fab:hover { transform:scale(1.08); }
 
-  @media (max-width: 768px) {
-    .lb-arrow { display: none; }
-    .hero { flex-direction: column; gap: 1.5rem; }
-    .hero h1 { font-size: 1.8rem; }
-    .stats-row { text-align: left; }
-    nav { display: none; }
-    .video-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-wrap { padding: 1rem 1rem 4rem; }
-    .search-bar input { width: 100px; }
-    .lb-keyboard-hint { display: none; }
-    .age-box { padding: 2rem 1.5rem; }
+  @media (max-width:768px) {
+    .lb-arrow { display:none; }
+    .hero { flex-direction:column; gap:1.5rem; }
+    .hero h1 { font-size:1.8rem; }
+    .stats-row { text-align:left; }
+    nav#catNav { max-width:200px; }
+    .video-grid { grid-template-columns:1fr 1fr; gap:10px; }
+    .grid-wrap { padding:1rem 1rem 2rem; }
+    .search-bar input { width:100px; }
+    .lb-keyboard-hint { display:none; }
+    .age-box { padding:2rem 1.5rem; }
+    .ad-banner { margin:0 1rem; }
+    .ad-banner-top { margin:0.5rem 1rem 0; }
+    .ad-banner-bottom { margin:0 1rem 0.5rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── 年龄验证弹窗 ─────────────────────────────────────────────────────────── -->
+<!-- AGE GATE -->
 <div id="ageGate">
   <div class="age-box">
     <div class="age-badge">18+</div>
     <div class="age-title">年龄验证</div>
-    <div class="age-desc">
-      本网站包含<strong>成人内容</strong>，仅供 <strong>18 周岁及以上</strong>人士访问。<br>
-      进入即表示您确认已达到您所在地区的法定成年年龄，并自愿访问此类内容。
-    </div>
-    <div class="age-warning">
-      ⚠️ 未成年人严禁访问。本站内容可能包含色情、裸露或其他成人材料，请在私密环境下浏览。
-    </div>
+    <div class="age-desc">本网站包含<strong>成人内容</strong>，仅供 <strong>18 周岁及以上</strong>人士访问。<br>进入即表示您确认已达到您所在地区的法定成年年龄。</div>
+    <div class="age-warning">⚠️ 未成年人严禁访问。本站内容可能包含裸露或其他成人材料，请在私密环境下浏览。</div>
     <div class="age-btns">
-      <button class="btn-enter" onclick="confirmAge()">
-        ✅ 我已年满 18 周岁，进入网站
-      </button>
-      <button class="btn-leave" onclick="leaveWebsite()">
-        ✕ 我未满 18 周岁，离开网站
-      </button>
+      <button class="btn-enter" onclick="confirmAge()">✅ 我已年满 18 周岁，进入网站</button>
+      <button class="btn-leave" onclick="leaveWebsite()">✕ 我未满 18 周岁，离开网站</button>
     </div>
-    <div class="age-legal">
-      点击进入即表示您同意本站服务条款，并确认您所在地区允许访问此类内容。<br>
-      本站使用 Cookie 记录您的年龄验证状态，有效期 24 小时。
-    </div>
+    <div class="age-legal">点击进入即表示您同意本站服务条款。本站使用 Cookie 记录验证状态，有效期 24 小时。</div>
   </div>
 </div>
 
-<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<!-- HEADER -->
 <header>
   <a class="logo" href="#">
     <div class="logo-icon">▶</div>
     <span class="logo-text">Reel<span>Vault</span></span>
   </a>
-  <nav>
-    <button class="nav-tag active" onclick="filterCat('all',this)">全部</button>
-    <button class="nav-tag" onclick="filterCat('tech',this)">科技</button>
-    <button class="nav-tag" onclick="filterCat('life',this)">生活</button>
-    <button class="nav-tag" onclick="filterCat('travel',this)">旅行</button>
-    <button class="nav-tag" onclick="filterCat('food',this)">美食</button>
-    <button class="nav-tag" onclick="filterCat('funny',this)">搞笑</button>
+  <nav id="catNav">
+    <button class="nav-tag active" onclick="filterCat('',this)">全部</button>
   </nav>
   <div class="header-right">
     <div class="search-bar">
       <span style="color:var(--muted);font-size:14px">🔍</span>
       <input type="text" placeholder="搜索视频…" id="searchInput" oninput="doSearch()">
     </div>
-    <div class="tg-badge">
-      <div class="tg-dot"></div>
-      TG 同步
-    </div>
+    <div class="tg-badge"><div class="tg-dot"></div>TG 同步</div>
   </div>
 </header>
 
@@ -311,6 +278,15 @@
     </select>
   </div>
 
+  <!-- ── 顶部横幅广告 ─────────────────────────────────────────────────────── -->
+  <div class="ad-banner ad-banner-top" id="adBannerTop">
+    <!-- 在此处替换为你的广告代码，例如 Google AdSense ins 标签 -->
+    <div class="ad-card-placeholder">
+      <div class="ad-icon">📢</div>
+      <div>广告位 — 728×90</div>
+    </div>
+  </div>
+
   <div class="grid-wrap">
     <div id="loadingWrap" class="loading-wrap">
       <div class="spinner"></div>
@@ -323,6 +299,15 @@
       <p>还没有同步到视频，请先运行 tg_sync.py 下载视频后刷新页面。</p>
     </div>
   </div>
+
+  <!-- ── 底部横幅广告 ─────────────────────────────────────────────────────── -->
+  <div class="ad-banner ad-banner-bottom" id="adBannerBottom">
+    <!-- 在此处替换为你的广告代码 -->
+    <div class="ad-card-placeholder">
+      <div class="ad-icon">📢</div>
+      <div>广告位 — 728×90</div>
+    </div>
+  </div>
 </main>
 
 <!-- LIGHTBOX -->
@@ -331,9 +316,7 @@
     <button class="lb-close" onclick="closeLightbox()">✕</button>
     <button class="lb-arrow prev" id="btnPrev" onclick="playPrev()">‹</button>
     <button class="lb-arrow next" id="btnNext" onclick="playNext()">›</button>
-    <div class="lb-video">
-      <video id="lbVideo" controls autoplay></video>
-    </div>
+    <div class="lb-video"><video id="lbVideo" controls autoplay></video></div>
     <div class="lb-info">
       <div class="lb-title" id="lbTitle"></div>
       <div class="lb-meta" id="lbMeta"></div>
@@ -342,9 +325,7 @@
         <span class="lb-counter" id="lbCounter">1 / 1</span>
         <button class="lb-nav-btn" id="navNext" onclick="playNext()">下一个 ➡</button>
       </div>
-      <div class="lb-keyboard-hint">
-        <kbd>←</kbd> 上一个 &nbsp; <kbd>→</kbd> 下一个 &nbsp; <kbd>Space</kbd> 暂停 &nbsp; <kbd>Esc</kbd> 关闭
-      </div>
+      <div class="lb-keyboard-hint"><kbd>←</kbd> 上一个 &nbsp; <kbd>→</kbd> 下一个 &nbsp; <kbd>Space</kbd> 暂停 &nbsp; <kbd>Esc</kbd> 关闭</div>
     </div>
   </div>
 </div>
@@ -352,135 +333,157 @@
 <button class="fab" onclick="loadFromAPI()" title="刷新">↻</button>
 
 <script>
-// ── 年龄验证逻辑 ──────────────────────────────────────────────────────────────
-function getCookie(name) {
-  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-  return m ? m.pop() : '';
-}
-function setCookie(name, value, hours) {
-  const exp = new Date(Date.now() + hours * 3600000).toUTCString();
-  document.cookie = `${name}=${value};expires=${exp};path=/`;
-}
-
-function confirmAge() {
-  setCookie('age_verified', '1', 24);
-  const gate = document.getElementById('ageGate');
-  gate.style.opacity = '0';
-  gate.style.transition = 'opacity 0.4s ease';
-  setTimeout(() => { gate.style.display = 'none'; }, 400);
-}
-
-function leaveWebsite() {
-  // 关闭当前页面，跳转到安全页面
-  try { window.close(); } catch(e) {}
-  // 如果无法关闭，跳转到 Google
-  window.location.replace('https://www.google.com');
-}
-
-// 检查是否已经验证过
-window.addEventListener('DOMContentLoaded', () => {
-  if (getCookie('age_verified') === '1') {
-    document.getElementById('ageGate').style.display = 'none';
-  }
-});
+// ── 年龄验证 ──────────────────────────────────────────────────────────────────
+function getCookie(n){const m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)');return m?m.pop():'';}
+function setCookie(n,v,h){document.cookie=`${n}=${v};expires=${new Date(Date.now()+h*3600000).toUTCString()};path=/`;}
+function confirmAge(){setCookie('age_verified','1',24);const g=document.getElementById('ageGate');g.style.opacity='0';g.style.transition='opacity 0.4s';setTimeout(()=>g.style.display='none',400);}
+function leaveWebsite(){try{window.close();}catch(e){}window.location.replace('https://www.google.com');}
+window.addEventListener('DOMContentLoaded',()=>{if(getCookie('age_verified')==='1')document.getElementById('ageGate').style.display='none';});
 
 // ── 主站逻辑 ──────────────────────────────────────────────────────────────────
 let ALL_VIDEOS   = [];
 let filtered     = [];
-let currentCat   = 'all';
+let currentCat   = '';
 let searchQ      = '';
 let likedSet     = new Set();
 let currentSort  = 'newest';
 let currentIndex = 0;
 
+// 悬停预览管理
+let hoverTimer   = null;
+let activePreview = null;
+let isMuted      = true;
+
+// 广告插入间隔（每N张视频卡片插入一个广告卡片）
+const AD_INTERVAL = 8;
+
 async function loadFromAPI() {
   showLoading(true);
   try {
-    const [vidRes, statRes] = await Promise.all([
+    const [vidRes, statRes, catRes] = await Promise.all([
       fetch('/api/videos?limit=9999'),
       fetch('/api/stats'),
+      fetch('/api/categories'),
     ]);
     if (vidRes.ok) {
       const data = await vidRes.json();
-      ALL_VIDEOS = (data.data || []).map(v => ({
-        id:       v.id,
-        title:    v.title || (v.file || '').split('/').pop() || '无标题',
-        file:     v.file  || '',
-        thumb:    v.thumb || '',
-        cat:      v.cat   || 'all',
-        tags:     v.tags  || [],
-        duration: v.duration_str || formatDur(v.duration || 0),
-        views:    v.views || 0,
-        likes:    v.likes || 0,
-        date:     v.date  || v.synced_at || '',
-        group:    v.group || 'Telegram',
-        size_mb:  v.size_mb || 0,
+      ALL_VIDEOS = (data.data||[]).map(v=>({
+        id:v.id, title:v.title||(v.file||'').split('/').pop()||'无标题',
+        file:v.file||'', thumb:v.thumb||'', cat:v.cat||'',
+        tags:v.tags||[], duration:v.duration_str||formatDur(v.duration||0),
+        views:v.views||0, likes:v.likes||0,
+        date:v.date||v.synced_at||'', group:v.group||'Telegram', size_mb:v.size_mb||0,
       }));
     }
     if (statRes.ok) {
-      const stats = await statRes.json();
-      document.getElementById('totalCount').textContent = stats.total   || ALL_VIDEOS.length;
-      document.getElementById('groupCount').textContent = (stats.groups || []).length || 1;
-      document.getElementById('todayCount').textContent = stats.today   || '—';
+      const s=await statRes.json();
+      document.getElementById('totalCount').textContent=s.total||ALL_VIDEOS.length;
+      document.getElementById('groupCount').textContent=(s.groups||[]).length||1;
+      document.getElementById('todayCount').textContent=s.today||'—';
     } else {
-      document.getElementById('totalCount').textContent = ALL_VIDEOS.length;
-      document.getElementById('groupCount').textContent = '—';
-      document.getElementById('todayCount').textContent = '—';
+      document.getElementById('totalCount').textContent=ALL_VIDEOS.length;
+      document.getElementById('groupCount').textContent='—';
+      document.getElementById('todayCount').textContent='—';
     }
-  } catch(e) { console.error('API 加载失败:', e); }
+    if (catRes.ok) {
+      const cd=await catRes.json();
+      const nav=document.getElementById('catNav');
+      nav.innerHTML=`<button class="nav-tag ${currentCat===''?'active':''}" onclick="filterCat('',this)">全部</button>`+
+        (cd.categories||[]).map(c=>`<button class="nav-tag ${currentCat===c?'active':''}" onclick="filterCat('${escHtml(c)}',this)">${escHtml(c)}</button>`).join('');
+    }
+  } catch(e){console.error(e);}
   applyFilters();
   showLoading(false);
 }
 
-function showLoading(on) {
-  document.getElementById('loadingWrap').style.display = on ? 'block' : 'none';
-  if (!on) document.getElementById('videoGrid').style.display = 'grid';
+function showLoading(on){
+  document.getElementById('loadingWrap').style.display=on?'block':'none';
+  if(!on)document.getElementById('videoGrid').style.display='grid';
 }
 
-function formatDur(sec) {
-  sec = Math.floor(Number(sec) || 0);
-  const s = sec % 60, m = Math.floor(sec / 60) % 60, h = Math.floor(sec / 3600);
-  if (h) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  return m + ':' + String(s).padStart(2,'0');
+function formatDur(sec){sec=Math.floor(Number(sec)||0);const s=sec%60,m=Math.floor(sec/60)%60,h=Math.floor(sec/3600);if(h)return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');return m+':'+String(s).padStart(2,'0');}
+function relDate(iso){if(!iso)return'';try{const d=(Date.now()-new Date(iso))/1000;if(d<60)return'刚刚';if(d<3600)return Math.floor(d/60)+'分钟前';if(d<86400)return Math.floor(d/3600)+'小时前';if(d<604800)return Math.floor(d/86400)+'天前';return new Date(iso).toLocaleDateString('zh-CN');}catch{return'';}}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── 悬停预览逻辑 ──────────────────────────────────────────────────────────────
+function startHoverPreview(card, videoFile) {
+  stopHoverPreview();
+  hoverTimer = setTimeout(() => {
+    const preview = card.querySelector('.thumb-preview');
+    if (!preview) return;
+    preview.src = '/videos/' + videoFile.split('/').pop() + '#t=2';
+    preview.muted = isMuted;
+    preview.play().catch(() => {});
+    activePreview = preview;
+  }, 400); // 悬停400ms后开始播放
 }
 
-function relDate(iso) {
-  if (!iso) return '';
-  try {
-    const diff = (Date.now() - new Date(iso)) / 1000;
-    if (diff < 60)     return '刚刚';
-    if (diff < 3600)   return Math.floor(diff/60) + '分钟前';
-    if (diff < 86400)  return Math.floor(diff/3600) + '小时前';
-    if (diff < 604800) return Math.floor(diff/86400) + '天前';
-    return new Date(iso).toLocaleDateString('zh-CN');
-  } catch { return ''; }
+function stopHoverPreview() {
+  clearTimeout(hoverTimer);
+  if (activePreview) {
+    activePreview.pause();
+    activePreview.src = '';
+    activePreview = null;
+  }
 }
 
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toggleMute(e, card) {
+  e.stopPropagation();
+  isMuted = !isMuted;
+  const preview = card.querySelector('.thumb-preview');
+  const icon    = card.querySelector('.mute-indicator');
+  if (preview) preview.muted = isMuted;
+  if (icon)    icon.textContent = isMuted ? '🔇' : '🔊';
 }
 
+// ── 广告卡片 HTML ─────────────────────────────────────────────────────────────
+function renderAdCard() {
+  return `
+  <div class="ad-card">
+    <!-- 在此替换为广告代码 -->
+    <div class="ad-card-placeholder">
+      <div class="ad-icon">📢</div>
+      <div style="font-size:11px">广告位 300×250</div>
+    </div>
+  </div>`;
+}
+
+// ── 渲染视频网格（含广告插入）────────────────────────────────────────────────
 function render(vids) {
   const grid  = document.getElementById('videoGrid');
   const empty = document.getElementById('emptyState');
   if (!vids.length) {
-    grid.innerHTML = ''; grid.style.display = 'none'; empty.style.display = 'block'; return;
+    grid.innerHTML=''; grid.style.display='none'; empty.style.display='block'; return;
   }
-  empty.style.display = 'none'; grid.style.display = 'grid';
-  grid.innerHTML = vids.map((v, i) => {
+  empty.style.display='none'; grid.style.display='grid';
+
+  let html = '';
+  vids.forEach((v, i) => {
+    // 每 AD_INTERVAL 张插入一个广告卡片
+    if (i > 0 && i % AD_INTERVAL === 0) {
+      html += renderAdCard();
+    }
+
     const thumbHtml = v.thumb
-      ? `<img class="thumb-img" src="${escHtml(v.thumb)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=thumb-placeholder>🎬</div>'">`
+      ? `<img class="thumb-img" src="${escHtml(v.thumb)}" alt="" loading="lazy" onerror="this.style.display='none'">`
       : `<div class="thumb-placeholder">🎬</div>`;
-    const viewStr = v.views >= 1000 ? (v.views/1000).toFixed(1)+'K' : v.views;
+    const viewStr = v.views>=1000?(v.views/1000).toFixed(1)+'K':v.views;
     const safeId  = encodeURIComponent(v.id);
-    return `
-    <div class="video-card" style="animation-delay:${Math.min(i,10)*0.04}s" onclick="openVideo('${safeId}')">
+    const safeFile = escHtml(v.file);
+
+    html += `
+    <div class="video-card" style="animation-delay:${Math.min(i,10)*0.04}s"
+         onclick="openVideo('${safeId}')"
+         onmouseenter="startHoverPreview(this,'${safeFile}')"
+         onmouseleave="stopHoverPreview()">
       <div class="thumb">
         ${thumbHtml}
+        <video class="thumb-preview" muted playsinline preload="none" loop></video>
         <div class="thumb-overlay"></div>
         <div class="play-btn"><div class="play-circle">▶</div></div>
         <span class="duration-badge">${escHtml(v.duration)}</span>
         <span class="source-badge">TG</span>
+        <div class="mute-indicator" onclick="toggleMute(event,this.closest('.video-card'))">🔇</div>
       </div>
       <div class="card-body">
         <div class="card-title">${escHtml(v.title)}</div>
@@ -490,7 +493,7 @@ function render(vids) {
           <span>${relDate(v.date)}</span>
           <div class="card-meta-dot"></div>
           <span>${escHtml(v.group)}</span>
-          ${v.size_mb ? `<div class="card-meta-dot"></div><span>${v.size_mb}MB</span>` : ''}
+          ${v.cat?`<div class="card-meta-dot"></div><span class="card-cat">${escHtml(v.cat)}</span>`:''}
         </div>
       </div>
       <div class="card-footer">
@@ -498,113 +501,110 @@ function render(vids) {
           <span style="font-size:14px">${likedSet.has(v.id)?'❤️':'🤍'}</span>
           <span>${v.likes}</span>
         </button>
-        <button class="action-btn" onclick="dlVideo(event,'${escHtml(v.file)}','${safeId}')">
+        <button class="action-btn" onclick="dlVideo(event,'${safeFile}','${safeId}')">
           <span style="font-size:14px">⬇️</span> 下载
         </button>
       </div>
     </div>`;
-  }).join('');
+  });
+
+  grid.innerHTML = html;
 }
 
-function applyFilters() {
-  filtered = ALL_VIDEOS.filter(v => {
-    const catOk = currentCat === 'all' || v.cat === currentCat;
-    const sqOk  = !searchQ || v.title.toLowerCase().includes(searchQ) || v.group.toLowerCase().includes(searchQ) || (v.tags||[]).join(' ').toLowerCase().includes(searchQ);
-    return catOk && sqOk;
+// ── 过滤 & 排序 ──────────────────────────────────────────────────────────────
+function applyFilters(){
+  filtered=ALL_VIDEOS.filter(v=>{
+    const catOk=currentCat===''||v.cat===currentCat;
+    const sqOk=!searchQ||v.title.toLowerCase().includes(searchQ)||v.group.toLowerCase().includes(searchQ)||(v.tags||[]).join(' ').toLowerCase().includes(searchQ);
+    return catOk&&sqOk;
   });
-  const s = [...filtered];
-  if (currentSort === 'popular')       s.sort((a,b) => b.views - a.views);
-  else if (currentSort === 'liked')    s.sort((a,b) => b.likes - a.likes);
-  else if (currentSort === 'duration') s.sort((a,b) => { const t = x => (x||'0:0').split(':').reduce((a,c)=>a*60+parseInt(c||0),0); return t(b.duration)-t(a.duration); });
-  else s.sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+  const s=[...filtered];
+  if(currentSort==='popular')s.sort((a,b)=>b.views-a.views);
+  else if(currentSort==='liked')s.sort((a,b)=>b.likes-a.likes);
+  else if(currentSort==='duration')s.sort((a,b)=>{const t=x=>(x||'0:0').split(':').reduce((a,c)=>a*60+parseInt(c||0),0);return t(b.duration)-t(a.duration);});
+  else s.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
   render(s);
 }
 
-function sortVideos(mode) { currentSort = mode; applyFilters(); }
-function filterCat(cat, btn) {
-  currentCat = cat;
-  document.querySelectorAll('.nav-tag').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active'); applyFilters();
-}
-function doSearch() {
-  searchQ = document.getElementById('searchInput').value.toLowerCase().trim(); applyFilters();
-}
+function sortVideos(mode){currentSort=mode;applyFilters();}
+function filterCat(cat,btn){currentCat=cat;document.querySelectorAll('#catNav .nav-tag').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyFilters();}
+function doSearch(){searchQ=document.getElementById('searchInput').value.toLowerCase().trim();applyFilters();}
 
-async function toggleLike(e, safeId) {
+// ── 点赞 ─────────────────────────────────────────────────────────────────────
+async function toggleLike(e,safeId){
   e.stopPropagation();
-  const id = decodeURIComponent(safeId);
-  const v  = ALL_VIDEOS.find(v => v.id === id);
-  if (!v) return;
-  if (likedSet.has(id)) { likedSet.delete(id); v.likes = Math.max(0, v.likes-1); }
-  else { likedSet.add(id); v.likes++; try { await fetch('/api/videos/'+safeId+'/like',{method:'POST'}); } catch(_){} }
+  const id=decodeURIComponent(safeId);
+  const v=ALL_VIDEOS.find(v=>v.id===id);
+  if(!v)return;
+  if(likedSet.has(id)){likedSet.delete(id);v.likes=Math.max(0,v.likes-1);}
+  else{likedSet.add(id);v.likes++;try{await fetch('/api/videos/'+safeId+'/like',{method:'POST'});}catch(_){}}
   applyFilters();
 }
 
-function updateNavState() {
-  const total = ALL_VIDEOS.length;
-  document.getElementById('lbCounter').textContent = `${currentIndex + 1} / ${total}`;
-  document.getElementById('btnPrev').disabled = currentIndex <= 0;
-  document.getElementById('btnNext').disabled = currentIndex >= total - 1;
-  document.getElementById('navPrev').disabled = currentIndex <= 0;
-  document.getElementById('navNext').disabled = currentIndex >= total - 1;
+// ── 播放 ─────────────────────────────────────────────────────────────────────
+function updateNavState(){
+  const t=ALL_VIDEOS.length;
+  document.getElementById('lbCounter').textContent=`${currentIndex+1} / ${t}`;
+  document.getElementById('btnPrev').disabled=currentIndex<=0;
+  document.getElementById('btnNext').disabled=currentIndex>=t-1;
+  document.getElementById('navPrev').disabled=currentIndex<=0;
+  document.getElementById('navNext').disabled=currentIndex>=t-1;
 }
 
-async function openVideo(safeId) {
-  const id  = decodeURIComponent(safeId);
-  const idx = ALL_VIDEOS.findIndex(v => v.id === id);
-  if (idx === -1) return;
-  currentIndex = idx;
+async function openVideo(safeId){
+  stopHoverPreview();
+  const id=decodeURIComponent(safeId);
+  const idx=ALL_VIDEOS.findIndex(v=>v.id===id);
+  if(idx===-1)return;
+  currentIndex=idx;
   await playAtIndex(currentIndex);
   document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-async function playAtIndex(idx) {
-  const v = ALL_VIDEOS[idx];
-  if (!v) return;
-  currentIndex = idx;
-  document.getElementById('lbTitle').textContent = v.title;
-  document.getElementById('lbMeta').textContent  = `${v.views} 次播放 · ${relDate(v.date)} · 来自 ${v.group}`;
-  const vid = document.getElementById('lbVideo');
-  vid.src = '/videos/' + (v.file || '').split('/').pop();
-  vid.load(); vid.play().catch(()=>{});
+async function playAtIndex(idx){
+  const v=ALL_VIDEOS[idx];
+  if(!v)return;
+  currentIndex=idx;
+  document.getElementById('lbTitle').textContent=v.title;
+  document.getElementById('lbMeta').textContent=`${v.views} 次播放 · ${relDate(v.date)} · 来自 ${v.group}${v.cat?' · '+v.cat:''}`;
+  const vid=document.getElementById('lbVideo');
+  vid.src='/videos/'+(v.file||'').split('/').pop();
+  vid.load();vid.play().catch(()=>{});
   updateNavState();
-  try { await fetch('/api/videos/'+encodeURIComponent(v.id)+'/view',{method:'POST'}); v.views++; } catch(_){}
+  try{await fetch('/api/videos/'+encodeURIComponent(v.id)+'/view',{method:'POST'});v.views++;}catch(_){}
 }
 
-function playPrev() { if (currentIndex > 0) playAtIndex(currentIndex - 1); }
-function playNext() { if (currentIndex < ALL_VIDEOS.length - 1) playAtIndex(currentIndex + 1); }
+function playPrev(){if(currentIndex>0)playAtIndex(currentIndex-1);}
+function playNext(){if(currentIndex<ALL_VIDEOS.length-1)playAtIndex(currentIndex+1);}
 
-function closeLightbox() {
+function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
-  const vid = document.getElementById('lbVideo');
-  vid.pause(); vid.src = '';
-  document.body.style.overflow = '';
+  const vid=document.getElementById('lbVideo');
+  vid.pause();vid.src='';
+  document.body.style.overflow='';
 }
-function closeLB(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); }
+function closeLB(e){if(e.target===document.getElementById('lightbox'))closeLightbox();}
 
-document.addEventListener('keydown', e => {
-  const lb = document.getElementById('lightbox');
-  if (!lb.classList.contains('open')) return;
-  if (e.key === 'Escape')           closeLightbox();
-  else if (e.key === 'ArrowLeft')   playPrev();
-  else if (e.key === 'ArrowRight')  playNext();
-  else if (e.key === ' ') {
-    e.preventDefault();
-    const vid = document.getElementById('lbVideo');
-    vid.paused ? vid.play() : vid.pause();
-  }
+document.addEventListener('keydown',e=>{
+  const lb=document.getElementById('lightbox');
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')closeLightbox();
+  else if(e.key==='ArrowLeft')playPrev();
+  else if(e.key==='ArrowRight')playNext();
+  else if(e.key===' '){e.preventDefault();const vid=document.getElementById('lbVideo');vid.paused?vid.play():vid.pause();}
 });
 
-function dlVideo(e, filePath, safeId) {
+// ── 下载 ─────────────────────────────────────────────────────────────────────
+function dlVideo(e,filePath,safeId){
   e.stopPropagation();
-  const id = decodeURIComponent(safeId);
-  const v  = ALL_VIDEOS.find(v => v.id === id);
-  const filename = (filePath||'').split('/').pop();
-  const a = document.createElement('a');
-  a.href = '/videos/' + filename;
-  a.download = (v && v.title) ? v.title + '.' + filename.split('.').pop() : filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  const id=decodeURIComponent(safeId);
+  const v=ALL_VIDEOS.find(v=>v.id===id);
+  const filename=(filePath||'').split('/').pop();
+  const a=document.createElement('a');
+  a.href='/videos/'+filename;
+  a.download=(v&&v.title)?v.title+'.'+filename.split('.').pop():filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
 loadFromAPI();
